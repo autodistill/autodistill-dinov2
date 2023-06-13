@@ -17,7 +17,7 @@ This repository contains the code supporting the DINOv2 base model for use with 
 
 Read the full [Autodistill documentation](https://autodistill.github.io/autodistill/).
 
-Read the [DINOv2 Autodistill documentation](https://autodistill.github.io/autodistill/base_models/dinov2/).
+Read the [DINOv2 Autodistill documentation](https://github.com/facebookresearch/dinov2/blob/main/MODEL_CARD.md).
 
 ## Installation
 
