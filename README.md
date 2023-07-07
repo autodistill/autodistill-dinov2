@@ -15,9 +15,9 @@ This repository contains the code supporting the DINOv2 base model for use with 
 
 [DINOv2](https://github.com/facebookresearch/dinov2), developed by Meta Research, is a self-supervised training method for computer vision models. This library uses DINOv2 image embeddings with SVM to build a classification model.
 
-Read the full [Autodistill documentation](https://autodistill.github.io/autodistill/).
+Read the full [Autodistill documentation](https://docs.autodistill.com/autodistill/).
 
-Read the [DINOv2 Autodistill documentation](https://autodistill.github.io/autodistill/base_models/dinov2/).
+Read the [DINOv2 Autodistill documentation](https://docs.autodistill.com/target_models/dinov2/).
 
 ## Installation
 
