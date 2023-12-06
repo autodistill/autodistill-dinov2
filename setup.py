@@ -1,17 +1,18 @@
-import setuptools
-from setuptools import find_packages
 import re
 
-with open("./autodistill_dinov2/__init__.py", 'r') as f:
+import setuptools
+from setuptools import find_packages
+
+with open("./autodistill_dinov2/__init__.py", "r") as f:
     content = f.read()
     # from https://www.py4u.net/discuss/139845
     version = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]', content).group(1)
-    
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="autodistill-dinov2",  
+    name="autodistill-dinov2",
     version=version,
     author="Roboflow",
     author_email="support@roboflow.com",
@@ -24,7 +25,7 @@ setuptools.setup(
         "torchvision",
         "supervision",
         "numpy",
-        "PIL",
+        "Pillow",
         "tqdm",
         "scikit-learn",
         "autodistill",

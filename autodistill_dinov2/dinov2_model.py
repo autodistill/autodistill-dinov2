@@ -1,18 +1,19 @@
 import json
 import os
+import warnings
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 import supervision as sv
 import torch
 import torchvision.transforms as T
-from autodistill.detection import CaptionOntology
-from autodistill.classification import ClassificationBaseModel
-from PIL import Image
 from sklearn import svm
 from tqdm import tqdm
 
-import warnings
+from autodistill.classification import ClassificationBaseModel
+from autodistill.detection import CaptionOntology
+from autodistill.helpers import load_image as load_image_autodistill_main
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -24,11 +25,11 @@ transform_image = T.Compose(
 )
 
 
-def load_image(img: str) -> torch.Tensor:
+def load_image(img: Any) -> torch.Tensor:
     """
     Load an image and return a tensor that can be used as an input to DINOv2.
     """
-    img = Image.open(img)
+    img = load_image_autodistill_main(img, return_format="PIL")
 
     transformed_img = transform_image(img)[:3].unsqueeze(0)
 
@@ -66,13 +67,13 @@ class DINOv2(ClassificationBaseModel):
         self.dinov2_model = dinov2_vits14
         self.ontology = ontology
 
-    def predict(self, input: str) -> sv.Classifications:
+    def predict(self, input: Any) -> sv.Classifications:
         embedding = compute_embeddings([input], self.dinov2_model)
 
         class_id = self.model.predict(np.array(embedding[input]).reshape(-1, 384))
 
         return sv.Classifications(
-            class_id=np.array([self.ontology.classes().index(class_id)]),
+            class_id=np.array([self.ontology.classes().index(class_id[0])]),
             confidence=np.array([1]),
         )
 
@@ -82,35 +83,33 @@ class DINOv2(ClassificationBaseModel):
         clf = svm.SVC(gamma="scale")
 
         classes = dataset.classes
+
         images = list(dataset.images.keys())
         annotations = dataset.annotations
 
-        all_images = []
-
-        for image in images:
-            class_label = classes[annotations[image].class_id[0]]
-
-            all_images.append(os.path.join(dataset_location, class_label, image))
-
-        embeddings = compute_embeddings(all_images, self.dinov2_model)
+        embeddings = compute_embeddings(images, self.dinov2_model)
 
         with open("embeddings.json", "w") as f:
             json.dump(embeddings, f)
 
         y = [
-            classes[annotations[os.path.basename(file)].class_id[0]]
-            for file in all_images
+            classes[annotations[file].class_id[0]]
+            for file in images
         ]
 
-        embedding_list = [embeddings[file] for file in all_images]
+        embedding_list = [embeddings[file] for file in images]
 
         # svm needs at least 2 classes
-        unqiue_classes = list(set(y))
+        unique_classes = list(set(y))
 
-        if len(unqiue_classes) == 1:
+        if len(unique_classes) == 1:
             raise ValueError("Only one class in dataset")
 
         # DINOv2 has 384 dimensions
         clf.fit(np.array(embedding_list).reshape(-1, 384), y)
+
+        self.ontology = CaptionOntology(
+            {prompt: prompt for prompt in classes}
+        )
 
         self.model = clf

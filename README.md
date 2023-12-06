@@ -33,7 +33,7 @@ pip3 install autodistill-dinov2
 ```python
 from autodistill_dinov2 import DINOv2
 
-target_model = DINOv2()
+target_model = DINOv2(None)
 
 # train a model
 # specify the directory where your annotations (in multiclass classification folder format)
@@ -41,8 +41,13 @@ target_model = DINOv2()
 # with the structure {filename: embedding}
 target_model.train("./context_images_labeled")
 
+# get class list
+# print(target_model.ontology.classes())
+
 # run inference on the new model
 pred = target_model.predict("./context_images_labeled/train/images/dog-7.jpg")
+
+print(pred)
 ```
 
 
